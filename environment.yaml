@@ -1,0 +1,9 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - snakemake-minimal = 5.4.0
+  - python = 3.6
+  - fasttext = 0.2.0
+  - pandas = 0.23.4
+  - nltk = 3.4

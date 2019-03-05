@@ -102,3 +102,13 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Skip generated data
+data/
+biotime
+
+# Visual studio code
+.vscode/
+
+# Snakemake
+.snakemake/

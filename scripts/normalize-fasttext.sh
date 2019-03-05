@@ -10,5 +10,3 @@ normalize_text() {
         -e 's/,/ , /g' -e 's/(/ ( /g' -e 's/)/ ) /g' -e 's/\!/ \! /g' \
         -e 's/\?/ \? /g' -e 's/\;/ /g' -e 's/\:/ /g' | tr -s " " #| myshuf
 }
-
-normalize_text $1

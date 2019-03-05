@@ -1,7 +1,4 @@
 
-def foo():
-    pass
-
 rule gen_parameters:
     output:
         "data/params.csv"
@@ -18,17 +15,28 @@ rule select_columns_biotime:
 
 rule data_prep_fasttext:
     input:
-        "data/biotime_metadata_prep.csv"
+        csv="data/biotime_metadata_prep.csv"
     output:
-        "data/biotime_prep_fasttext.txt",
-        "data/biotime_linenumber_studyid_mapping.csv"
+        txt="data/biotime_prep_fasttext.txt",
+        map="data/biotime_linenumber_studyid_mapping.csv"
     script:
         "scripts/data-prep-fasttext.py"
 
-rule normalize_fastext:
+rule normalize_fasttext:
     input:
         "data/biotime_prep_fasttext.txt"
     output:
         "data/biotime_fasttext.txt"
-    script:
-        "scripts/normalize-fasttext.sh {input} > {output}"
+    shell:
+        "source scripts/normalize-fasttext.sh &&"
+        "normalize_text <{input} > {output}"
+
+rule train_model:
+    input:
+        "data/biotime_fasttext.txt"
+    output:
+        mod="models/biotime_metadata_model.bin"
+    run:
+        import os
+        model = os.path.splitext(output.mod)[0]
+        shell("fasttext supervised -input {input} -output {model} -dim 10 -lr 1.5 -wordNgrams 3 -minCount 1 -bucket 10000000 -epoch 50 -thread 4")

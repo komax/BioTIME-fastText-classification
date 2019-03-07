@@ -36,4 +36,4 @@ def write_metadata_fasttext(metadata_df, outfilename, firstSentences=3):
 
 biotime_df = pd.read_csv(snakemake.input.csv, encoding="ISO-8859-1")
 write_study_line_number_mapping(biotime_df, snakemake.output.map)
-write_metadata_fasttext(biotime_df, snakemake.output.txt, firstSentences=3)
+write_metadata_fasttext(biotime_df, snakemake.output.txt, firstSentences=snakemake.params.firstNSentences)

@@ -27,6 +27,7 @@ cv_data, test_data = split_train_test_data(normalized_data)
 
 # Write test data.
 write_data(test_data, snakemake.output.test_data)
+write_data(cv_data, snakemake.output.train_data)
 
 for cv_set, (train_indices, validation_indices) in enumerate(generate_cv_datasets(cv_data, kFold=snakemake.params.kfold)):
     cv_path = f'data/cv/set_{cv_set}'

@@ -1,8 +1,6 @@
 #! /usr/bin/env python
 
-import pandas as pd
 import fastText
-from sklearn.model_selection import KFold
 
 def load_data(filename):
     with open(filename, "r") as file_data:
@@ -13,10 +11,6 @@ def load_data(filename):
 def f1_score(precision, recall):
     f1 = 2 * (precision * recall) / (precision + recall)
     return f1
-
-def generate_cv_datasets(dataset):
-    kf = KFold(n_splits=5, shuffle=True)
-    return kf.split(dataset)
 
 cv_sets = zip(snakemake.input.train_data, snakemake.input.valid_data)
 f1_scores = []

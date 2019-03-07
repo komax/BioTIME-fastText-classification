@@ -44,21 +44,22 @@ rule train_model:
         model = os.path.splitext(output.mod)[0]
         shell("fasttext supervised -input {input} -output {model} -dim 10 -lr 1.5 -wordNgrams 3 -minCount 1 -bucket 10000000 -epoch 50 -thread 4")
 
-rule cross_validate:
-    input:
-        data="data/biotime_fasttext.txt"
-    output:
-        model_file="models/biotime_metadata_model.bin"
-    script:
-        "scripts/cross-validate-classifier.py"
-
 rule split_data:
     input:
         data="data/biotime_fasttext.txt"
     params:
-        kfold=10
+        kfold=KFOLD
     output:
         test_data="data/cv/biotime.test",
         cv_data = expand("data/cv/set_{cv_subset}/biotime.{cv_ext}", cv_subset=range(KFOLD), cv_ext=CV_EXTS)
     script:
         "scripts/split-data.py"
+
+rule cross_validate:
+    input:
+        train_data=expand("data/cv/set_{cv_set}/biotime.train", cv_set=range(KFOLD)),
+        valid_data=expand("data/cv/set_{cv_set}/biotime.valid", cv_set=range(KFOLD))
+    params:
+        kfold=KFOLD
+    script:
+        "scripts/cross-validate-classifier.py"

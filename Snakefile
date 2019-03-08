@@ -7,17 +7,6 @@ import fastText
 KFOLD = 3
 CV_EXTS = ['train','valid']
 
-def f1_score(precision, recall):
-    return 2 * (precision * recall) / (precision + recall)
-
-def parameter_combinations():
-    for dim in np.linspace(start=10, stop=20, num=2, dtype=int):
-        for lr in np.linspace(start=0.1, stop=1.0, num=2):
-            for wordNgrams in np.linspace(start=2, stop=5, num=2, dtype=int):
-                for epoch in np.linspace(start=5, stop=50, num=2, dtype=int):
-                    for bucket in np.linspace(start=2_000_000, stop=10_000_000, num=2, dtype=int):
-                        yield dim, lr, wordNgrams, epoch, bucket
-
 rule gen_parameters:
     output:
         "data/params.csv"
@@ -116,3 +105,11 @@ rule find_parameters:
         _, precision, recall = classifier.test(input.test_data)
         f1_test = f1_score(precision, recall)
         print(f"f1_score on test data={f1_test}")
+
+rule clean:
+    input:
+        data=directory("data"),
+        models=directory("models")
+    run:
+        shell("test -d {input.data} && rm -r {input.data}")
+        shell("test -d {input.models} && rm -r {input.models}")

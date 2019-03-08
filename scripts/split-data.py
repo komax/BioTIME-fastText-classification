@@ -3,12 +3,7 @@
 import numpy as np
 from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
-
-def load_data_as_array(filename):
-    with open(filename, "r") as file_test_data:
-        biotime_data = file_test_data.read().splitlines()
-        return np.array(biotime_data)
-    raise RuntimeError("Cannot load input data")
+from utils import load_data_as_array
 
 def generate_cv_datasets(dataset, kFold=5):
     kf = KFold(n_splits=kFold, shuffle=True)

@@ -106,6 +106,7 @@ venv.bak/
 # Skip generated data
 data/
 models/
+results/
 biotime
 
 # Visual studio code

@@ -4,14 +4,32 @@ import math
 import numpy as np
 import fastText
 
-KFOLD = 3
+KFOLD = 10
 CV_EXTS = ['train','valid']
+
+CHUNKS = 4
+
+rule all:
+    input:
+        expand("results/blocks/scores_{chunk}.csv", chunk=range(CHUNKS))
+    shell:
+        "echo i am done"
 
 rule gen_parameters:
     output:
         "data/params.csv"
     script:
         "scripts/generate-parameter-space.py"
+
+rule chunk_parameters:
+    input:
+        params_csv="data/params.csv"
+    params:
+        chunks=CHUNKS
+    output:
+        params_chunks_csv=expand("data/blocks/params_{chunk}.csv", chunk=range(CHUNKS))
+    script:
+        "scripts/chunk-parameters.py"
 
 rule select_columns_biotime:
     input:
@@ -63,14 +81,44 @@ rule split_data:
     script:
         "scripts/split-data.py"
 
-rule cross_validate:
+# rule cross_validate:
+#     input:
+#         train_data=expand("data/cv/set_{cv_set}/biotime.train", cv_set=range(KFOLD)),
+#         valid_data=expand("data/cv/set_{cv_set}/biotime.valid", cv_set=range(KFOLD))
+#     params:
+#         kfold=KFOLD
+#     script:
+#         "scripts/cross-validate-classifier.py"
+
+rule cross_validate_chunk:
     input:
         train_data=expand("data/cv/set_{cv_set}/biotime.train", cv_set=range(KFOLD)),
-        valid_data=expand("data/cv/set_{cv_set}/biotime.valid", cv_set=range(KFOLD))
+        valid_data=expand("data/cv/set_{cv_set}/biotime.valid", cv_set=range(KFOLD)),
+        test_file="data/cv/biotime.test",
+        train_file="data/cv/biotime.train",
+        params_csv = "data/blocks/params_{chunk}.csv"
     params:
         kfold=KFOLD
+    output:
+        result="results/blocks/scores_{chunk}.csv"
     script:
         "scripts/cross-validate-classifier.py"
+
+rule merge_chunks:
+    input:
+        expand("results/blocks/scores_{chunk}.csv", chunk=range(CHUNKS))
+    output:
+        "results/params_scores.csv"
+    shell:
+        "xsv cat rows {input} > {output}"
+
+rule sort_f1_scores:
+    input:
+        "results/params_scores.csv"
+    output:
+        "results/params_scores_sorted.csv"
+    shell:
+        "xsv sort --reverse --select f1_train_mean {input} > {output}"
 
 rule find_parameters:
     input:
@@ -107,9 +155,5 @@ rule find_parameters:
         print(f"f1_score on test data={f1_test}")
 
 rule clean:
-    input:
-        data=directory("data"),
-        models=directory("models")
     run:
-        shell("test -d {input.data} && rm -r {input.data}")
-        shell("test -d {input.models} && rm -r {input.models}")
+        shell("rm -rf data models results")

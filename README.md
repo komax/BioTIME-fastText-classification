@@ -47,6 +47,18 @@ pip install .
 ### 4. Link or copy your BioTIME data to the respository
 Create a symlink or copy your BioTIME data into ```biotime``` directory.
 
+### 5. Ensure to download ```punkt``` from nltk
+nltk requires to download content to tokenize a sentence. Run this in your python shell:
+```python
+>>> import nltk
+>>> nltk.download('punkt')
+```
+or run
+```bash
+$ python scripts/download-nltk-punkt.py
+```
+
+
 
 ## Run experiments with Snakemake
 All configuration parameters are stored in ```Snakefile```. Change the parameters to your purpose.

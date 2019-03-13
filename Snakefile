@@ -1,13 +1,26 @@
-
 import math
 
 import numpy as np
+import pandas as pd
 import fastText
 
-KFOLD = 10
+from scripts import utils
+from scripts.utils import ModelParams
+from scripts.utils import ParamRange
+
+
+KFOLD = 2
 CV_EXTS = ['train','valid']
 
-CHUNKS = 4
+CHUNKS = 16
+
+PARAMETER_SPACE = ModelParams(
+    dim=ParamRange(start=10, stop=100, num=2),
+    lr=ParamRange(start=0.1, stop=1.0, num=3),
+    wordNgrams=ParamRange(start=2, stop=5, num=2),
+    epoch=ParamRange(start=5, stop=50, num=2),
+    bucket=ParamRange(start=2_000_000, stop=10_000_000, num=5)
+)
 
 rule all:
     input:
@@ -18,8 +31,9 @@ rule all:
 rule gen_parameters:
     output:
         "data/params.csv"
-    script:
-        "scripts/generate-parameter-space.py"
+    run:
+        combinations = pd.DataFrame(utils.parameter_combinations(PARAMETER_SPACE), columns=['dim', 'lr', 'wordNgrams', 'epoch', 'bucket'])
+        combinations.to_csv(output[0], index=False)
 
 rule chunk_parameters:
     input:

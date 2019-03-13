@@ -7,14 +7,25 @@ import numpy as np
 
 
 ModelParams = namedtuple('ModelParams', ['dim', 'lr', 'wordNgrams', 'epoch', 'bucket'])
+ParamRange = namedtuple('ParamRange', ['start', 'stop', 'num'])
+
+DEFAULT_PARAMETER_SPACE = ModelParams(
+    dim=ParamRange(start=10, stop=20, num=2),
+    lr=ParamRange(start=0.1, stop=1.0, num=3),
+    wordNgrams=ParamRange(start=2, stop=5, num=2),
+    epoch=ParamRange(start=5, stop=50, num=2),
+    bucket=ParamRange(start=2_000_000, stop=10_000_000, num=2)
+)
 
 
-def parameter_combinations():
-    for dim in np.linspace(start=10, stop=20, num=2, dtype=int):
-        for lr in np.linspace(start=0.1, stop=1.0, num=2):
-            for wordNgrams in np.linspace(start=2, stop=5, num=2, dtype=int):
-                for epoch in np.linspace(start=5, stop=50, num=2, dtype=int):
-                    for bucket in np.linspace(start=2_000_000, stop=10_000_000, num=2, dtype=int):
+def parameter_combinations(parameter_space=None):
+    if not parameter_space:
+        parameter_space = DEFAULT_PARAMETER_SPACE
+    for dim in np.linspace(*parameter_space.dim, dtype=int):
+        for lr in np.linspace(*parameter_space.lr):
+            for wordNgrams in np.linspace(*parameter_space.wordNgrams, dtype=int):
+                for epoch in np.linspace(*parameter_space.epoch, dtype=int):
+                    for bucket in np.linspace(*parameter_space.bucket, dtype=int):
                         yield ModelParams(dim, lr, wordNgrams, epoch, bucket)
 
 

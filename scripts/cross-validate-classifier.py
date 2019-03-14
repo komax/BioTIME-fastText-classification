@@ -33,7 +33,7 @@ def test_model(model_parameters, train_data_file, test_data_file):
 def eval_model_parameters(params_csv, cv_sets):
     for params in params_csv.itertuples(index=True, name='ModelParams'):
         f1_score = cross_validate_model(params, cv_sets)
-        params_csv.at[params.Index, 'f1_train_mean'] = f1_score
+        params_csv.at[params.Index, 'f1_cross_validation'] = f1_score
 
 
 def eval_test_data(params_csv, train_data, test_data):
@@ -42,7 +42,7 @@ def eval_test_data(params_csv, train_data, test_data):
         params_csv.at[params.Index, 'f1_test'] = f1_score
 
 params_csv = pd.read_csv(snakemake.input.params_csv)
-params_csv['f1_train_mean'] = None
+params_csv['f1_cross_validation'] = None
 params_csv['f1_test'] = None
 
 cv_sets = list(zip(snakemake.input.train_data, snakemake.input.valid_data))

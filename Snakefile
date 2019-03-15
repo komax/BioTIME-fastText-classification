@@ -49,7 +49,8 @@ rule select_columns_biotime:
     output:
         "data/biotime_metadata_prep.csv"
     shell:
-        "xsv select STUDY_ID,REALM,TAXA,METHODS {input} > {output}"
+        #"xsv select STUDY_ID,REALM,TAXA,METHODS {input} > {output}"
+        "xsv select STUDY_ID,REALM,METHODS {input} > {output}"
 
 rule data_prep_fasttext:
     input:
@@ -90,6 +91,7 @@ rule cross_validate_chunk:
         test_file="data/cv/biotime.test",
         train_file="data/cv/biotime.train",
         params_csv = "data/blocks/params_{chunk}.csv"
+    threads: 4
     params:
         kfold=KFOLD
     output:
@@ -111,12 +113,13 @@ rule sort_f1_scores:
     output:
         "results/params_scores_sorted.csv"
     shell:
-        "xsv sort --reverse --select f1_train_mean {input} > {output}"
+        "xsv sort --reverse --select f1_cross_validation {input} > {output}"
 
 rule train_model:
     input:
         train_data="data/cv/biotime.train",
         results="results/params_scores_sorted.csv"
+    threads: 4
     output:
         model_bin="models/biotime_metadata_model.bin"
     run:
@@ -125,7 +128,7 @@ rule train_model:
         params = results.iloc[0]
         shell("fasttext supervised -input {input.train_data} -output {model} \
         -dim {params.dim} -lr {params.lr} -wordNgrams {params.wordNgrams} \
-        -minCount 1 -bucket {params.bucket} -epoch {params.epoch} -thread 4")
+        -minCount 1 -bucket {params.bucket} -epoch {params.epoch} -thread {threads}")
 
 rule test_model:
     input:

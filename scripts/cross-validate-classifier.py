@@ -13,7 +13,7 @@ def cross_validate_model(model_parameters, cross_validation_sets):
         classifier = fastText.train_supervised(train_file,
             dim=model_parameters.dim, lr=model_parameters.lr,
             wordNgrams=model_parameters.wordNgrams, minCount=1,
-            bucket=model_parameters.bucket, epoch=model_parameters.epoch)
+            bucket=model_parameters.bucket, epoch=model_parameters.epoch, thread=THREADS)
         _, precision, recall = classifier.test(valid_file)
         f1_scores.append(f1_score(precision, recall))
     mean_f1 = sum(f1_scores) / len(f1_scores)
@@ -24,7 +24,7 @@ def test_model(model_parameters, train_data_file, test_data_file):
     classifier = fastText.train_supervised(train_data_file,
             dim=model_parameters.dim, lr=model_parameters.lr,
             wordNgrams=model_parameters.wordNgrams, minCount=1,
-            bucket=model_parameters.bucket, epoch=model_parameters.epoch)
+            bucket=model_parameters.bucket, epoch=model_parameters.epoch, thread=THREADS)
     _, precision, recall = classifier.test(test_data_file)
     return f1_score(precision, recall)
 
@@ -61,6 +61,9 @@ def main():
         cv_valid_data = sorted(map(lambda p: str(p), cv_path.glob('set_*/*.train')))
         cv_sets = list(zip(cv_train_data, cv_valid_data))
     
+    # Ensure it's an int.
+    THREADS = int(THREADS)
+
     print("I am using {} threads".format(THREADS))
     params_csv = pd.read_csv(parameters_file_name)
     params_csv['f1_cross_validation'] = None

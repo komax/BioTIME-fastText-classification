@@ -5,11 +5,11 @@ from scripts.utils import ModelParams
 from scripts.utils import ParamRange
 
 
-KFOLD = 2
 CV_EXTS = ['train','valid']
 
+# Small example.
+KFOLD = 2
 CHUNKS = 4
-
 PARAMETER_SPACE = ModelParams(
     dim=ParamRange(start=10, stop=100, num=2),
     lr=ParamRange(start=0.1, stop=1.0, num=2),
@@ -17,8 +17,20 @@ PARAMETER_SPACE = ModelParams(
     epoch=ParamRange(start=5, stop=50, num=2),
     bucket=ParamRange(start=2_000_000, stop=10_000_000, num=2)
 )
-
 FIRST_N_SENTENCES = 3
+
+# Comprehensive example.
+# KFOLD = 10
+# CHUNKS = 900
+# PARAMETER_SPACE = ModelParams(
+#    dim=ParamRange(start=10, stop=100, num=10),
+#    lr=ParamRange(start=0.1, stop=1.0, num=10),
+#    wordNgrams=ParamRange(start=2, stop=5, num=4),
+#    epoch=ParamRange(start=5, stop=50, num=8),
+#    bucket=ParamRange(start=2_000_000, stop=10_000_000, num=5)
+#)
+#FIRST_N_SENTENCES = 5000
+
 
 rule all:
     input:

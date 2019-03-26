@@ -114,7 +114,7 @@ rule sort_f1_scores:
     output:
         "results/params_scores_sorted.csv"
     shell:
-        "xsv sort --reverse --select f1_cross_validation {input} > {output}"
+        "xsv sort --reverse --select f1_cross_validation_micro {input} > {output}"
 
 rule train_model:
     input:

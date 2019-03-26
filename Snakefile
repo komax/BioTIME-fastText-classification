@@ -22,9 +22,10 @@ FIRST_N_SENTENCES = 3
 
 rule all:
     input:
-        expand("results/blocks/scores_{chunk}.csv", chunk=range(CHUNKS))
-    shell:
-        "echo i am done"
+        model="models/biotime_metadata_model.bin"
+    run:
+        print("Done with training.")
+        print(f"Best model is stored here: {input.model}")
 
 rule gen_parameters:
     output:

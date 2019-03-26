@@ -1,11 +1,30 @@
 #! /usr/bin/env python
 
+import numpy as np
 import pandas as pd
 import fastText
 
 from utils import f1_score
 
 THREADS = 1
+
+
+def scores_pooled_from_labels(model, path_test_file, k=1, threshold=0.0):
+    scores = model.test_label(path_test_file, k=k, threshold=threshold)
+    precisions = list()
+    recalls = list()
+    f1_scores = list()
+
+    for score in scores.values():
+        precisions.append(score['precision'])
+        recalls.append(score['recall'])
+        f1_scores.append(score['f1score'])
+
+    pooled_precision = np.mean(precisions)
+    pooled_recall = np.mean(recalls)
+    pooled_f1 = np.mean(f1_scores)
+    return pooled_precision, pooled_recall, pooled_f1
+
 
 def cross_validate_model(model_parameters, cross_validation_sets):
     f1_scores = []

@@ -35,7 +35,7 @@ def cross_validate_model(model_parameters, cross_validation_sets):
             bucket=model_parameters.bucket, epoch=model_parameters.epoch, thread=THREADS)
         _, precision, recall = classifier.test(valid_file)
         f1_scores.append(f1_score(precision, recall))
-    mean_f1 = sum(f1_scores) / len(f1_scores)
+    mean_f1 = np.mean(f1_scores)
     return mean_f1
 
 

@@ -8,6 +8,7 @@ import numpy as np
 
 ModelParams = namedtuple('ModelParams', ['dim', 'lr', 'wordNgrams', 'epoch', 'bucket'])
 ParamRange = namedtuple('ParamRange', ['start', 'stop', 'num'])
+ResultScore = namedtuple('Resultscore', ['precision', 'recall', 'f1score'])
 
 DEFAULT_PARAMETER_SPACE = ModelParams(
     dim=ParamRange(start=10, stop=20, num=2),

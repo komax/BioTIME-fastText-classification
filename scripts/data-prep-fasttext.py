@@ -21,6 +21,11 @@ def firstNsentences(text, n=3):
     return " ".join(n_sentences)
 
 
+def remove_studies_wtih_empty_classes(dataframe):
+    label_column = dataframe.columns[1]
+    return dataframe[pd.notnull(dataframe[label_column])]
+
+
 def write_study_line_number_mapping(metadata_dataframe, filename):
     study_ids = metadata_dataframe["STUDY_ID"]
     study_ids.to_csv(filename, index=True, header=['STUDY_ID'], index_label='LINENUMBER')
@@ -31,9 +36,11 @@ def write_metadata_fasttext(metadata_df, outfilename, firstSentences=3):
     # Select first n sentences, then trim them.
     metadata_df["METHODS"] = metadata_df["METHODS"].map(firstNsentences).map(trim_sentence)
     metadata_df.pop('STUDY_ID')
+    # Write the data as csv (no header).
     metadata_df.to_csv(outfilename, header=False, index=False, quoting=csv.QUOTE_ALL)
 
 
 biotime_df = pd.read_csv(snakemake.input.csv, encoding="ISO-8859-1")
+biotime_df = remove_studies_wtih_empty_classes(biotime_df)
 write_study_line_number_mapping(biotime_df, snakemake.output.map)
 write_metadata_fasttext(biotime_df, snakemake.output.txt, firstSentences=snakemake.params.firstNSentences)

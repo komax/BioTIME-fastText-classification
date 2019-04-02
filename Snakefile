@@ -17,7 +17,7 @@ PARAMETER_SPACE = ModelParams(
     epoch=ParamRange(start=5, stop=50, num=2),
     bucket=ParamRange(start=2_000_000, stop=10_000_000, num=2)
 )
-FIRST_N_SENTENCES = 3
+FIRST_N_SENTENCES = 1
 
 # Comprehensive example.
 #KFOLD = 10
@@ -125,11 +125,12 @@ rule merge_chunks:
 
 rule sort_f1_scores:
     input:
-        "results/params_scores.csv"
+        params_scores="results/params_scores.csv"
     output:
-        "results/params_scores_sorted.csv"
-    shell:
-        "xsv sort --reverse --select f1_cross_validation_micro {input} > {output}"
+        scores_sorted="results/params_scores_sorted.csv"
+    script:
+        "scripts/sort-model-parameters.py"
+        #"xsv sort --reverse --select f1_cross_validation_micro {input} > {output}"
 
 rule train_model:
     input:

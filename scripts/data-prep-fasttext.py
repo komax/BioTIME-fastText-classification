@@ -22,14 +22,31 @@ def firstNsentences(text, n=3):
 
 
 def remove_studies_wtih_empty_classes(dataframe):
-    label_column = dataframe.columns[1]
-    return dataframe[pd.notnull(dataframe[label_column])]
+    column_name = label_column_name(dataframe)
+    return dataframe[pd.notnull(dataframe[column_name])]
 
 
 def write_study_line_number_mapping(metadata_dataframe, filename):
     study_ids = metadata_dataframe["STUDY_ID"]
     study_ids.to_csv(filename, index=True, header=['STUDY_ID'], index_label='LINENUMBER')
     return
+
+
+def label_column_name(df):
+    return df.columns[snakemake.params.label_column]
+
+
+def replace_class_name_by_num(data_frame):
+    column_name = label_column_name(data_frame)
+    
+    label_values = data_frame[column_name].unique().tolist()
+    remapping = dict()
+
+    for i, label in enumerate(label_values, start=1):
+        remapping[label] = i
+
+    data_frame[column_name] = data_frame[column_name].map(remapping)
+    return data_frame
 
 
 def write_metadata_fasttext(metadata_df, outfilename, firstSentences=3):
@@ -41,6 +58,11 @@ def write_metadata_fasttext(metadata_df, outfilename, firstSentences=3):
 
 
 biotime_df = pd.read_csv(snakemake.input.csv, encoding="ISO-8859-1")
+# Trim data.
 biotime_df = remove_studies_wtih_empty_classes(biotime_df)
+if snakemake.params.replace_labels_by_num:
+    biotime_df = replace_class_name_by_num(biotime_df)
+
+# Write the data.
 write_study_line_number_mapping(biotime_df, snakemake.output.map)
 write_metadata_fasttext(biotime_df, snakemake.output.txt, firstSentences=snakemake.params.firstNSentences)

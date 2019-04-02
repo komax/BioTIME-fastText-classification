@@ -20,14 +20,14 @@ PARAMETER_SPACE = ModelParams(
 FIRST_N_SENTENCES = 3
 
 # Comprehensive example.
-# KFOLD = 10
-# CHUNKS = 900
-# PARAMETER_SPACE = ModelParams(
-#    dim=ParamRange(start=10, stop=100, num=10),
-#    lr=ParamRange(start=0.1, stop=1.0, num=10),
-#    wordNgrams=ParamRange(start=2, stop=5, num=4),
-#    epoch=ParamRange(start=5, stop=50, num=8),
-#    bucket=ParamRange(start=2_000_000, stop=10_000_000, num=5)
+#KFOLD = 10
+#CHUNKS = 500
+#PARAMETER_SPACE = ModelParams(
+#   dim=ParamRange(start=10, stop=100, num=10),
+#   lr=ParamRange(start=0.1, stop=1.0, num=10),
+#   wordNgrams=ParamRange(start=2, stop=5, num=4),
+#   epoch=ParamRange(start=5, stop=50, num=8),
+#   bucket=ParamRange(start=2_000_000, stop=10_000_000, num=5)
 #)
 #FIRST_N_SENTENCES = 5000
 
@@ -63,13 +63,16 @@ rule select_columns_biotime:
         "data/biotime_metadata_prep.csv"
     shell:
         #"xsv select STUDY_ID,REALM,TAXA,METHODS {input} > {output}"
-        "xsv select STUDY_ID,REALM,METHODS {input} > {output}"
+        #"xsv select STUDY_ID,REALM,METHODS {input} > {output}"
+        "xsv select STUDY_ID,ABUNDANCE_TYPE,METHODS {input} > {output}"
 
 rule data_prep_fasttext:
     input:
         csv="data/biotime_metadata_prep.csv"
     params:
-        firstNSentences=FIRST_N_SENTENCES
+        firstNSentences=FIRST_N_SENTENCES,
+        label_column=1,
+        replace_labels_by_num=True
     output:
         txt="data/biotime_prep_fasttext.txt",
         map="data/biotime_linenumber_studyid_mapping.csv"

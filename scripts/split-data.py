@@ -10,15 +10,15 @@ def generate_cv_datasets(dataset, kFold=5):
     return kf.split(dataset)
 
 
-def split_train_test_data(data):
-    return train_test_split(data, test_size=0.25, shuffle=True)
+def split_train_test_data(data, test_size=0.25):
+    return train_test_split(data, test_size=test_size, shuffle=True)
 
 def write_data(data_array, filename):
     np.savetxt(filename, data_array, fmt='%s')
 
 
 normalized_data = load_data_as_array(snakemake.input.data)
-cv_data, test_data = split_train_test_data(normalized_data)
+cv_data, test_data = split_train_test_data(normalized_data, test_size=snakemake.params.test_size)
 
 # Write test data.
 write_data(test_data, snakemake.output.test_data)

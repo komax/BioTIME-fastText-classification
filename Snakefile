@@ -91,7 +91,8 @@ rule split_data:
         data="data/biotime_fasttext.txt"
     params:
         kfold=KFOLD,
-        test_size=0.25
+        test_size=0.25,
+        cross_val_dir='data/cv'
     output:
         test_data="data/cv/biotime.test",
         train_data="data/cv/biotime.train",

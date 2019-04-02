@@ -25,7 +25,6 @@ write_data(test_data, snakemake.output.test_data)
 write_data(cv_data, snakemake.output.train_data)
 
 for cv_set, (train_indices, validation_indices) in enumerate(generate_cv_datasets(cv_data, kFold=snakemake.params.kfold)):
-    # TODO use snakemake.params for cv_path
-    cv_path = f'data/cv/set_{cv_set}'
+    cv_path = f'{snakemake.params.cross_val_dir}/set_{cv_set}'
     write_data(cv_data[train_indices], f'{cv_path}/biotime.train')
     write_data(cv_data[validation_indices], f'{cv_path}/biotime.valid')

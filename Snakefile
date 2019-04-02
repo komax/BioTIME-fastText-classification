@@ -4,6 +4,7 @@ from scripts import utils
 from scripts.utils import ModelParams
 from scripts.utils import ParamRange
 
+THREADS = 4
 
 CV_EXTS = ['train','valid']
 
@@ -92,7 +93,9 @@ rule split_data:
     input:
         data="data/biotime_fasttext.txt"
     params:
-        kfold=KFOLD
+        kfold=KFOLD,
+        test_size=0.25,
+        cross_val_dir='data/cv'
     output:
         test_data="data/cv/biotime.test",
         train_data="data/cv/biotime.train",
@@ -107,7 +110,7 @@ rule cross_validate_chunk:
         test_file="data/cv/biotime.test",
         train_file="data/cv/biotime.train",
         params_csv = "data/blocks/params_{chunk}.csv"
-    threads: 4
+    threads: THREADS
     params:
         kfold=KFOLD
     output:
@@ -136,7 +139,7 @@ rule train_model:
     input:
         train_data="data/cv/biotime.train",
         results="results/params_scores_sorted.csv"
-    threads: 4
+    threads: THREADS
     output:
         model_bin="models/biotime_metadata_model.bin"
     run:

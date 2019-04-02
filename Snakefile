@@ -10,6 +10,7 @@ CV_EXTS = ['train','valid']
 
 # Small example.
 KFOLD = 2
+TEST_SIZE = 0.25
 CHUNKS = 4
 PARAMETER_SPACE = ModelParams(
     dim=ParamRange(start=10, stop=100, num=2),
@@ -22,6 +23,7 @@ FIRST_N_SENTENCES = 1
 
 # Comprehensive example.
 #KFOLD = 10
+#TEST_SIZE = 0.25
 #CHUNKS = 500
 #PARAMETER_SPACE = ModelParams(
 #   dim=ParamRange(start=10, stop=100, num=10),
@@ -94,7 +96,7 @@ rule split_data:
         data="data/biotime_fasttext.txt"
     params:
         kfold=KFOLD,
-        test_size=0.25,
+        test_size=TEST_SIZE,
         cross_val_dir='data/cv'
     output:
         test_data="data/cv/biotime.test",

@@ -77,7 +77,7 @@ def main():
         train_file_name = str(next(cv_path.glob('*.train')))
         test_file_name = str(next(cv_path.glob('*.test')))
         cv_train_data = sorted(map(lambda p: str(p), cv_path.glob('set_*/*.train')))
-        cv_valid_data = sorted(map(lambda p: str(p), cv_path.glob('set_*/*.train')))
+        cv_valid_data = sorted(map(lambda p: str(p), cv_path.glob('set_*/*.valid')))
         cv_sets = list(zip(cv_train_data, cv_valid_data))
     
     # Ensure it's an int.

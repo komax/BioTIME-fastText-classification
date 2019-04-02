@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import fastText
 
-from utils import f1_score
+from utils import f1_score, ResultScore
 
 THREADS = 1
 
@@ -23,20 +23,44 @@ def scores_pooled_from_labels(model, path_test_file, k=1, threshold=0.0):
     pooled_precision = np.mean(precisions)
     pooled_recall = np.mean(recalls)
     pooled_f1 = np.mean(f1_scores)
-    return pooled_precision, pooled_recall, pooled_f1
+    return ResultScore(pooled_precision, pooled_recall, pooled_f1)
+
+
+def avg_result_score(result_score):
+    result = ResultScore(precision=np.mean(result_score.precision),
+        recall=np.mean(result_score.recall), f1score=np.mean(result_score.f1score))
+    return result
 
 
 def cross_validate_model(model_parameters, cross_validation_sets):
-    f1_scores = []
+    micro_results = ResultScore(precision=[], recall=[], f1score=[])
+    macro_results = ResultScore(precision=[], recall=[], f1score=[])
     for train_file, valid_file in cross_validation_sets:
+        # Train the classifier.
         classifier = fastText.train_supervised(train_file,
             dim=model_parameters.dim, lr=model_parameters.lr,
             wordNgrams=model_parameters.wordNgrams, minCount=1,
             bucket=model_parameters.bucket, epoch=model_parameters.epoch, thread=THREADS)
+        # Evaluate the classifier.
+        # Test the model globally.
         _, precision, recall = classifier.test(valid_file)
-        f1_scores.append(f1_score(precision, recall))
-    mean_f1 = sum(f1_scores) / len(f1_scores)
-    return mean_f1
+        macro_results.precision.append(precision)
+        macro_results.recall.append(recall)
+        macro_results.f1score.append(f1_score(precision, recall))
+        # Test the model on micro level (each class).
+        result = scores_pooled_from_labels(classifier, valid_file)
+        micro_results.precision.append(result.precision)
+        micro_results.recall.append(result.recall)
+        micro_results.f1score.append(result.f1score)
+
+    # Reduce step: Calculate the means from the lists.
+    macro_result = avg_result_score(macro_results)
+    micro_result = avg_result_score(micro_results)
+    results = {
+        'macro': macro_result,
+        'micro': micro_result
+    }
+    return results
 
 
 def test_model(model_parameters, train_data_file, test_data_file):
@@ -50,8 +74,17 @@ def test_model(model_parameters, train_data_file, test_data_file):
 
 def eval_model_parameters(params_csv, cv_sets):
     for params in params_csv.itertuples(index=True, name='ModelParams'):
-        f1_score = cross_validate_model(params, cv_sets)
-        params_csv.at[params.Index, 'f1_cross_validation'] = f1_score
+        # Evaluate the model.
+        results = cross_validate_model(params, cv_sets)
+
+        # Store the results in the data frame.
+        params_csv.at[params.Index, 'precision_macro'] = results['macro'].precision
+        params_csv.at[params.Index, 'recall_macro'] = results['macro'].recall
+        params_csv.at[params.Index, 'f1_cross_validation_macro'] = results['macro'].f1score
+
+        params_csv.at[params.Index, 'precision_micro'] = results['micro'].precision
+        params_csv.at[params.Index, 'recall_micro'] = results['micro'].recall
+        params_csv.at[params.Index, 'f1_cross_validation_micro'] = results['micro'].f1score
 
 
 def eval_test_data(params_csv, train_data, test_data):
@@ -83,15 +116,23 @@ def main():
     # Ensure it's an int.
     THREADS = int(THREADS)
 
-    print("I am using {} threads".format(THREADS))
+    print("Hi there, I am running with {} threads".format(THREADS))
     params_csv = pd.read_csv(parameters_file_name)
-    params_csv['f1_cross_validation'] = None
+    params_csv['precision_macro'] = None
+    params_csv['recall_macro'] = None
+    params_csv['f1_cross_validation_macro'] = None
+    
+    params_csv['precision_micro'] = None
+    params_csv['recall_micro'] = None
+    params_csv['f1_cross_validation_micro'] = None
+
     params_csv['f1_test'] = None
     
     eval_model_parameters(params_csv, cv_sets)
     eval_test_data(params_csv, train_file_name, test_file_name)
 
     params_csv.to_csv(result_csv, index=False)
+    print("I completed my run. bye")
 
 
 if __name__ == "__main__":

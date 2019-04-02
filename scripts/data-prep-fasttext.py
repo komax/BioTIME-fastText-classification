@@ -31,7 +31,7 @@ def write_metadata_fasttext(metadata_df, outfilename, firstSentences=3):
     # Select first n sentences, then trim them.
     metadata_df["METHODS"] = metadata_df["METHODS"].map(firstNsentences).map(trim_sentence)
     metadata_df.pop('STUDY_ID')
-    metadata_df.to_csv(outfilename, index=False, quoting=csv.QUOTE_ALL)
+    metadata_df.to_csv(outfilename, header=False, index=False, quoting=csv.QUOTE_ALL)
 
 
 biotime_df = pd.read_csv(snakemake.input.csv, encoding="ISO-8859-1")

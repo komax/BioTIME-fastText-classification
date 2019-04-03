@@ -82,7 +82,6 @@ def test_model(model_parameters, train_data_file, test_data_file):
             dim=model_parameters.dim, lr=model_parameters.lr,
             wordNgrams=model_parameters.wordNgrams, minCount=1,
             bucket=model_parameters.bucket, epoch=model_parameters.epoch, thread=THREADS)
-    # TODO Store f1 from micro on this test set.
     _, precision, recall = classifier.test(test_data_file)
     return f1_score(precision, recall)
 

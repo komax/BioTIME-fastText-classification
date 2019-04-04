@@ -31,6 +31,9 @@ def parameter_combinations(parameter_space=None):
 
 
 def f1_score(precision, recall):
+    denominator = precision + recall
+    if denominator == 0:
+        return 0.0
     return 2 * (precision * recall) / (precision + recall)
 
 

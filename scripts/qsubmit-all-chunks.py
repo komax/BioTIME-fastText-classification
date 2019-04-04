@@ -10,7 +10,7 @@ def submit_job(params_chunk, cv_dir, results_dir):
     #func_call = ["./scripts/qsubmit-params-chunk.sh"]
     func_call = ['qsub',
         '-N', f'cross-validate-{params_chunk.stem}',
-        "./scripts/qsubmit-params-chunk.sh"]
+        "./scripts/qsubmit-cross-validate-param-chunk.sh"]
     out_csv = Path(results_dir) / params_chunk.name.replace("params", "scores")
     print(params_chunk.name.replace("params", "scores"))
     func_call.extend([

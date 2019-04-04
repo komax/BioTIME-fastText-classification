@@ -24,23 +24,6 @@ def avg_result_score(result_score):
         recall=np.mean(result_score.recall), f1score=np.mean(result_score.f1score))
     return result
 
-# FIXME remove this.
-def peak_to_peak_result_score(result_score):
-    ResultScore(precision=np.ptp(result_score.precision),
-        recall=np.ptp(result_score.recall),
-        f1score=np.ptp(result_score.f1score))
-
-
-def min_result_score(result_score):
-    return ResultScore(precision=np.min(result_score.precision),
-        recall=np.min(result_score.recall), f1score=np.min(result_score.f1score))
-
-
-def max_result_score(result_score):
-    return ResultScore(precision=np.max(result_score.precision),
-        recall=np.max(result_score.recall), f1score=np.max(result_score.f1score))
-
-
 def cross_validate_model(model_parameters, cross_validation_sets):
     macro_results = ResultScore(precision=[], recall=[], f1score=[])
     

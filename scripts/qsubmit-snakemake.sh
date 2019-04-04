@@ -16,6 +16,7 @@ if [[ ! $NSLOTS ]]; then
     NSLOTS=`getconf _NPROCESSORS_ONLN`
 fi
 
+module load git
 module load anaconda
 source activate biotime-fasttext
 snakemake sort_f1_scores -j $NSLOTS
